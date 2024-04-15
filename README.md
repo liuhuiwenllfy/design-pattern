@@ -95,6 +95,8 @@ new 就可以完成创建的对象，无需使用工厂模式。如果使用工�
 
 ## 实现
 
+> 我们用日志记录器来举例，日志可以分为登录日志、操作日志和更新日志，它们都记录了用户的行为。我们可以使用工厂模式来创建日志记录器。
+
 [工厂模式示例（Factory Pattern）](src/main/java/cn/liulingfengyu/designpattern/factorypattern)
 
 1. 创建日志接口（抽象产品）
@@ -243,3 +245,157 @@ public class FactoryPatternDemo {
 
 ## 实现
 
+> 我们用游戏类型和具体游戏来举例，游戏分为养成类游戏和塔防类游戏，每个游戏都有不同的类型，我们就可以使用抽象工厂模式来创建游戏。
+
+[抽象工厂模式示例（Abstract Factory Pattern）](src/main/java/cn/liulingfengyu/designpattern/abstractfactorypattern)
+
+1. 创建游戏接口（抽象产品）
+
+```java
+// 养成类游戏
+public interface ICultivationGameService {
+
+    void play();
+}
+// 塔防类游戏
+public interface ITowerDefenceGameService {
+
+   void play();
+}
+
+```
+
+2. 创建具体游戏实现类（具体产品）
+
+```java
+// 养成类游戏
+public class MultiMillionaireServiceImpl implements ICultivationGameService {
+    @Override
+    public void play() {
+        System.out.println("养成类->大富翁");
+    }
+}
+// 塔防类游戏
+public class LeagueOfLegendsServiceImpl implements ITowerDefenceGameService {
+
+   @Override
+   public void play() {
+      System.out.println("塔防类->英雄联盟");
+   }
+}
+```
+3. 创建抽象游戏工厂（抽象工厂）
+
+```java
+public abstract class AbstractFactory {
+
+    // 创建养成类游戏
+    public abstract ICultivationGameService getCultivationGame(String game);
+
+    // 创建塔防类游戏
+    public abstract ITowerDefenceGameService getTowerDefenceGame(String game);
+
+}
+
+//游戏工厂匹配类
+public class FactoryProducer {
+   public static AbstractFactory getFactory(String gameType) {
+      AbstractFactory gameFactory = null;
+      Assert.hasText(gameType, "游戏类型不能为空");
+      if (gameType.equalsIgnoreCase(GameTypeEnum.CULTIVATION.name())) {
+         gameFactory = new CultivationGameFactory();
+      } else if (gameType.equalsIgnoreCase(GameTypeEnum.TOWER_DEFENCE.name())) {
+         gameFactory = new TowerDefenceFactory();
+      }
+      return gameFactory;
+   }
+}
+
+```
+4. 创建具体游戏工厂（具体工厂）
+
+```java
+// 创建养成类游戏工厂
+public class CultivationGameFactory extends AbstractFactory {
+
+
+    @Override
+    public ICultivationGameService getCultivationGame(String game) {
+        // 初始化养成类游戏服务为null
+        ICultivationGameService gameService = null;
+        // 检查游戏名称是否为空，如果为空则抛出异常
+        Assert.hasText(game, "游戏名称不能为空");
+        // 判断游戏名称是否等于"MULTI_MILLIONAIRE"
+        if (game.equals(CultivationGameEnum.MULTI_MILLIONAIRE.name())) {
+            // 如果等于，则创建MultiMillionaireServiceImpl的实例并赋值给gameService
+            gameService = new MultiMillionaireServiceImpl();
+        }
+        // 检查gameService是否为null，如果为null则抛出异常
+        Assert.notNull(gameService, "没有匹配的游戏");
+        // 返回种植类游戏服务
+        return gameService;
+    }
+
+    @Override
+    public ITowerDefenceGameService getTowerDefenceGame(String game) {
+        return null;
+    }
+}
+
+// 创建塔防类游戏工厂
+public class TowerDefenceFactory extends AbstractFactory {
+   @Override
+   public ICultivationGameService getCultivationGame(String game) {
+      return null;
+   }
+
+   @Override
+   public ITowerDefenceGameService getTowerDefenceGame(String game) {
+      // 初始化游戏服务为null
+      ITowerDefenceGameService gameService = null;
+      // 检查游戏名称是否为空
+      Assert.hasText(game, "游戏名称不能为空");
+      // 如果游戏名称与英雄联盟匹配
+      if (game.equals(TowerDefenceGameEnum.LEAGUE_OF_LEGENDS.name())) {
+         // 创建英雄联盟游戏服务实例
+         gameService = new LeagueOfLegendsServiceImpl();
+      }
+      // 检查游戏服务是否为空，即没有匹配的游戏
+      Assert.notNull(gameService, "没有匹配的游戏");
+      // 返回游戏服务
+      return gameService;
+   }
+
+}
+
+```
+5. 测试类
+
+```java
+public class AbstractFactoryPatternDemo {
+
+    public static void main(String[] args) {
+        // 获取种植类游戏工厂
+        AbstractFactory cultivationGameFactory = FactoryProducer.getFactory(GameTypeEnum.CULTIVATION.name());
+        // 获取种植类游戏服务
+        ICultivationGameService multiMillionaireGameService = cultivationGameFactory.getCultivationGame(CultivationGameEnum.MULTI_MILLIONAIRE.name());
+        // 调用种植类游戏服务的play方法
+        multiMillionaireGameService.play();
+
+        // 获取塔防类游戏工厂
+        AbstractFactory towerDefenceFactory = FactoryProducer.getFactory(GameTypeEnum.TOWER_DEFENCE.name());
+        // 获取塔防类游戏服务
+        ITowerDefenceGameService leagueOfLegendsGameService = towerDefenceFactory.getTowerDefenceGame(TowerDefenceGameEnum.LEAGUE_OF_LEGENDS.name());
+        // 调用塔防类游戏服务的play方法
+        leagueOfLegendsGameService.play();
+    }
+
+}
+```
+
+6. 测试结果
+
+```text
+养成类->大富翁
+塔防类->英雄联盟
+```

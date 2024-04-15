@@ -17,7 +17,7 @@ public class CultivationGameFactory extends AbstractFactory {
 
     @Override
     public ICultivationGameService getCultivationGame(String game) {
-        // 初始化种植类游戏服务为null
+        // 初始化养成类游戏服务为null
         ICultivationGameService gameService = null;
         // 检查游戏名称是否为空，如果为空则抛出异常
         Assert.hasText(game, "游戏名称不能为空");
